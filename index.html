@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meenakshi's Blog</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh;
+      background: linear-gradient(135deg, #fff0f9 0%, #f0f8ff 50%, #f5fff0 100%);
+      padding: 1rem; }
+    h1 { font-size: 28px; font-weight: 800; background: linear-gradient(90deg,#A855F7,#EC4899,#F97316);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header { text-align: center; padding: 1.5rem 0 1rem; }
+    .header .emoji { font-size: 44px; margin-bottom: 4px; }
+    .header p { margin-top: 6px; font-size: 15px; color: #9CA3AF; }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .btn-new { display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 14px 0; font-size: 17px; font-weight: 700; border-radius: 18px;
+      border: none; cursor: pointer; background: linear-gradient(90deg,#A855F7,#EC4899);
+      color: #fff; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(168,85,247,0.25); }
+    .btn-new:hover { opacity: 0.92; }
+    .empty { text-align: center; padding: 3rem 1rem; background: #fff;
+      border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+    .empty .big { font-size: 52px; margin-bottom: 12px; }
+    .empty p { font-size: 17px; color: #9CA3AF; }
+    .posts { display: flex; flex-direction: column; gap: 14px; }
+    .card { background: #fff; border-radius: 20px; overflow: hidden; cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.15s; }
+    .card:hover { transform: translateY(-2px); }
+    .card-head { padding: 12px 16px; }
+    .card-head h3 { font-size: 17px; font-weight: 700; }
+    .card-head .date { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+    .card-body { padding: 12px 16px; }
+    .card-body p { font-size: 14px; color: #6B7280; line-height: 1.6; }
+    .read-more { font-size: 13px; font-weight: 600; margin-top: 8px; }
+    .footer-emoji { text-align: center; margin-top: 2rem; font-size: 20px; }
+
+    /* Write / Read views */
+    .view { display: none; }
+    .view.active { display: block; }
+    .back-btn { background: none; border: none; cursor: pointer; font-size: 15px;
+      color: #A855F7; font-weight: 600; padding: 0; margin-bottom: 16px; }
+    .panel { background: #fff; border-radius: 24px; padding: 1.5rem;
+      box-shadow: 0 4px 24px rgba(168,85,247,0.10); }
+    .panel h2 { font-size: 22px; color: #7C3AED; margin-bottom: 1rem; }
+    label { display: block; font-weight: 600; font-size: 14px; color: #7C3AED; margin-bottom: 6px; }
+    input[type=text], textarea { width: 100%; font-size: 15px; padding: 10px 14px;
+      border-radius: 12px; border: 2px solid #DDD0F7; outline: none; font-family: inherit;
+      margin-bottom: 12px; }
+    input[type=text] { font-size: 17px; }
+    textarea { line-height: 1.7; resize: vertical; }
+    .btn-publish { width: 100%; padding: 13px 0; font-size: 17px; font-weight: 700;
+      border-radius: 14px; border: none; cursor: pointer;
+      background: linear-gradient(90deg,#A855F7,#EC4899); color: #fff; }
+    .btn-publish:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; }
+    .post-head { padding: 1.5rem; border-bottom: 3px solid rgba(0,0,0,0.06); }
+    .post-head h1 { font-size: 24px; line-height: 1.3; -webkit-text-fill-color: unset;
+      background: none; }
+    .post-head .date { font-size: 13px; opacity: 0.75; margin-top: 8px; }
+    .post-body { padding: 1.5rem; font-size: 16px; line-height: 1.8; color: #374151;
+      white-space: pre-wrap; }
+    .post-actions { padding: 1rem 1.5rem 1.5rem; display: flex; gap: 10px; }
+    .btn-edit, .btn-del { flex: 1; padding: 10px 0; font-size: 14px; font-weight: 700;
+      border-radius: 12px; cursor: pointer; }
+    .btn-del { border: 2px solid #FCA5A5; background: #FFF1F1; color: #B91C1C; }
+  </style>
+</head>
+<body>
+
+<!-- HOME VIEW -->
+<div id="view-home" class="view active">
+  <div class="wrap">
+    <div class="header">
+      <div class="emoji">🌈⭐🦋</div>
+      <h1>Meenakshi's Blog</h1>
+      <p>My little corner of the internet ✨</p>
+    </div>
+    <button class="btn-new" onclick="showWrite()">✏️ Write a new post</button>
+    <div id="posts-list"></div>
+    <div class="footer-emoji">🌸 🦄 🌟 🎀 🦋</div>
+  </div>
+</div>
+
+<!-- WRITE VIEW -->
+<div id="view-write" class="view">
+  <div class="wrap">
+    <button class="back-btn" onclick="showHome()">← Back to my blog</button>
+    <div class="panel">
+      <h2 id="write-heading">✨ Write a new post</h2>
+      <label for="post-title">Post title</label>
+      <input type="text" id="post-title" placeholder="What's your post about?" oninput="checkDraft()" />
+      <label for="post-body">Your story</label>
+      <textarea id="post-body" rows="10" placeholder="Start writing here... tell everyone what's on your mind! 💭" oninput="checkDraft()"></textarea>
+      <button class="btn-publish" id="btn-publish" onclick="savePost()" disabled>🚀 Publish post!</button>
+    </div>
+  </div>
+</div>
+
+<!-- READ VIEW -->
+<div id="view-read" class="view">
+  <div class="wrap">
+    <button class="back-btn" onclick="showHome()">← Back to my blog</button>
+    <div class="panel" style="padding:0;overflow:hidden;">
+      <div class="post-head" id="read-head">
+        <h1 id="read-title"></h1>
+        <div class="date" id="read-date"></div>
+      </div>
+      <div class="post-body" id="read-body"></div>
+      <div class="post-actions">
+        <button class="btn-edit" id="btn-edit" onclick="editPost()">✏️ Edit</button>
+        <button class="btn-del" onclick="deletePost()">🗑️ Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const COLORS = [
+    { bg:'#FFE4F0', accent:'#FF6BAE', text:'#9C1B5E' },
+    { bg:'#FFF3D6', accent:'#FFAA00', text:'#8A5700' },
+    { bg:'#E4F8FF', accent:'#00C1F5', text:'#005A74' },
+    { bg:'#E8FFE4', accent:'#4CC94C', text:'#1A6B1A' },
+    { bg:'#F0E4FF', accent:'#A855F7', text:'#5B0F99' },
+    { bg:'#FFE8D6', accent:'#FF7043', text:'#8B2500' },
+  ];
+
+  let posts = JSON.parse(localStorage.getItem('meenakshi_posts') || '[]');
+  let editingId = null;
+  let readingId = null;
+
+  function save() { localStorage.setItem('meenakshi_posts', JSON.stringify(posts)); }
+
+  function fmt(ts) {
+    return new Date(ts).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function color(idx) { return COLORS[idx % COLORS.length]; }
+
+  function show(id) {
+    ['view-home','view-write','view-read'].forEach(v =>
+      document.getElementById(v).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function showHome() {
+    editingId = null; readingId = null;
+    renderPosts();
+    show('view-home');
+  }
+
+  function showWrite() {
+    document.getElementById('write-heading').textContent = '✨ Write a new post';
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-body').value = '';
+    document.getElementById('btn-publish').textContent = '🚀 Publish post!';
+    document.getElementById('btn-publish').disabled = true;
+    show('view-write');
+  }
+
+  function checkDraft() {
+    const t = document.getElementById('post-title').value.trim();
+    const b = document.getElementById('post-body').value.trim();
+    document.getElementById('btn-publish').disabled = !(t && b);
+  }
+
+  function savePost() {
+    const title = document.getElementById('post-title').value.trim();
+    const body  = document.getElementById('post-body').value.trim();
+    if (!title || !body) return;
+    const now = Date.now();
+    if (editingId !== null) {
+      posts = posts.map(p => p.id === editingId ? { ...p, title, body, updated: now } : p);
+      editingId = null;
+    } else {
+      posts.unshift({ id: now, title, body, created: now, updated: now });
+    }
+    save(); showHome();
+  }
+
+  function editPost() {
+    const post = posts.find(p => p.id === readingId);
+    if (!post) return;
+    editingId = post.id;
+    document.getElementById('write-heading').textContent = '✏️ Edit post';
+    document.getElementById('post-title').value = post.title;
+    document.getElementById('post-body').value = post.body;
+    document.getElementById('btn-publish').textContent = '💾 Save changes';
+    document.getElementById('btn-publish').disabled = false;
+    show('view-write');
+  }
+
+  function deletePost() {
+    if (!confirm('Delete this post?')) return;
+    posts = posts.filter(p => p.id !== readingId);
+    save(); showHome();
+  }
+
+  function openPost(id) {
+    const post = posts.find(p => p.id === id);
+    if (!post) return;
+    readingId = id;
+    const idx = posts.indexOf(post);
+    const c = color(idx);
+    const head = document.getElementById('read-head');
+    head.style.background = c.bg;
+    head.style.borderBottomColor = c.accent;
+    document.getElementById('read-title').style.color = c.text;
+    document.getElementById('read-title').textContent = post.title;
+    document.getElementById('read-date').style.color = c.text;
+    document.getElementById('read-date').textContent =
+      '📅 ' + fmt(post.created) + (post.updated !== post.created ? ' · edited ' + fmt(post.updated) : '');
+    document.getElementById('read-body').textContent = post.body;
+    const btnEdit = document.getElementById('btn-edit');
+    btnEdit.style.border = '2px solid ' + c.accent;
+    btnEdit.style.background = c.bg;
+    btnEdit.style.color = c.text;
+    show('view-read');
+  }
+
+  function renderPosts() {
+    const el = document.getElementById('posts-list');
+    if (posts.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="big">📝</div><p>No posts yet — write your first one!</p></div>';
+      return;
+    }
+    el.innerHTML = '<div class="posts">' + posts.map((p, i) => {
+      const c = color(i);
+      const preview = p.body.length > 120 ? p.body.slice(0,120) + '…' : p.body;
+      return `<div class="card" style="border:2px solid ${c.bg}" onclick="openPost(${p.id})">
+        <div class="card-head" style="background:${c.bg}">
+          <h3 style="color:${c.text}">${esc(p.title)}</h3>
+          <div class="date" style="color:${c.text}">📅 ${fmt(p.created)}</div>
+        </div>
+        <div class="card-body">
+          <p>${esc(preview)}</p>
+          <p class="read-more" style="color:${c.accent}">Read more →</p>
+        </div>
+      </div>`;
+    }).join('') + '</div>';
+  }
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  renderPosts();
+</script>
+</body>
+</html>
